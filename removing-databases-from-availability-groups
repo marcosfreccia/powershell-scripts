@@ -1,0 +1,28 @@
+
+[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.SMO") | Out-Null
+[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.SmoExtended") | Out-Null
+
+$SQLInstance = "MyListener001"
+
+$AgName = Get-DbaAvailabilityGroup -SqlInstance $SQLInstance | Select-Object -ExpandProperty AvailabilityGroup
+$PrimaryReplica = Get-DbaAgReplica -SqlInstance $SQLInstance | Where-Object {$_.Role -eq "Primary" } | Select-Object -ExpandProperty Name
+$SecondaryReplica = Get-DbaAgReplica -SqlInstance $SQLInstance | Where-Object {$_.Role -eq "Secondary" } | Select-Object -ExpandProperty Name
+
+$Databases = ("Database01","Database02")
+
+
+foreach ($database in $Databases) {
+    $IsOnAg = Get-DbaAgDatabase -SqlInstance $SQLInstance -Database $database | Select-Object -ExpandProperty Name
+
+    if ($IsOnAg) {
+        $AGPath = "SQLSERVER:\SQL\$PrimaryReplica\DEFAULT\AvailabilityGroups\$AgName\AvailabilityDatabases\$database"
+
+        Remove-SQLAvailabilityDatabase -Path $AGPath
+
+        Remove-DbaDatabase -SqlInstance $PrimaryReplica,$SecondaryReplica -Database $database -Confirm:$false
+
+    }
+
+}
+
+
