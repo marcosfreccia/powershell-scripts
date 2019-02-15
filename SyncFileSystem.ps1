@@ -1,8 +1,8 @@
 $SourceFolder = "D:\Source"
 $TargetFolder = "D:\Target\"
 
-$SourceFolderItems = Get-ChildItem -Recurse -Path D:\Source 
-$TargetFolderItems = Get-ChildItem  -Recurse -Path D:\Target 
+$SourceFolderItems = Get-ChildItem -Recurse -Path $SourceFolder
+$TargetFolderItems = Get-ChildItem  -Recurse -Path $TargetFolder
 
 
 try {
